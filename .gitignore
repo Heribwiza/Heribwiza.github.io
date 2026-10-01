@@ -1,2 +1,7 @@
 # Ignore example image
 example.png
+
+# Verification screenshots — not shipped
+_desk.png
+_mob.png
+_tab.png

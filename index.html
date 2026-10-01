@@ -9,14 +9,22 @@
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#0b0414">
 <meta property="og:type" content="profile">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="fr_FR">
 <meta property="og:title" content="Heri Bwiza Alain — BICT Assistant | ICT & Business Systems Specialist">
 <meta property="og:description" content="BICT graduate and ICT/business-systems specialist with 3+ years managing digital data collection, databases and IT support for WHO and local NGO programs across Eastern DRC.">
-<meta property="og:image" content="profile-photo.jpg">
+<meta property="og:image" content="og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Portrait of Heri Bwiza Alain">
 <meta property="og:url" content="https://example.com/">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Heri Bwiza Alain — BICT Assistant">
 <meta name="twitter:description" content="ICT & business-systems specialist — digital data collection, databases, IT support.">
-<meta name="twitter:image" content="profile-photo.jpg">
+<meta name="twitter:image" content="og-image.jpg">
+<meta name="twitter:image:alt" content="Portrait of Heri Bwiza Alain">
+<meta name="color-scheme" content="dark">
+<link rel="preload" as="image" href="profile-480.avif" type="image/avif" fetchpriority="high">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -38,9 +46,16 @@
     --font-body:'Inter', sans-serif;
     --font-mono:'IBM Plex Mono', monospace;
     --maxw:1160px;
+    /* inline 32px blur-up placeholder for the portrait (written by _build-assets.js) */
+    --lqip: data:image/jpeg;base64,/9j/2wBDABwcHBweHCAkJCAtMCswLUI9Nzc9QmRHTUdNR2SXXm5eXm5el4aihHuEoobwvaenvfD/6d3p////////////////2wBDARwcHBweHCAkJCAtMCswLUI9Nzc9QmRHTUdNR2SXXm5eXm5el4aihHuEoobwvaenvfD/6d3p////////////////wgARCAAoACADASIAAhEBAxEB/8QAGQAAAwEBAQAAAAAAAAAAAAAAAAQFAwEG/8QAFwEBAQEBAAAAAAAAAAAAAAAAAAECA//aAAwDAQACEAMQAAAA880tRzrJKvJUoJv9OZNrTjHULO4gf//EACEQAAEFAAIBBQAAAAAAAAAAAAEAAgMEERITIiQxQlJi/9oACAEBAAE/AAoKxnOA4rNQwfLUUFV4cD5kEK119ZPJxJPsUUNVaDsgnkEga6LCpYPRtndIHPe/AAnNKCpTdQt/qBWpudWnH9Q5OOBbjkHYnP1bpX//xAAZEQEBAAMBAAAAAAAAAAAAAAABAAIQEhH/2gAIAQIBAT8AyfCxVLm5NN//xAAZEQEAAwEBAAAAAAAAAAAAAAABAAIRECH/2gAIAQMBAT8AoCy4D5Nm9//Z;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
+  /* clip, not hidden: the nav is position:sticky, and overflow-x:hidden on the
+     root would turn <html> into a scroll container and silently kill the sticky
+     behaviour. `clip` seals the ~3px that the hero's entrance animations can
+     transiently throw past the right edge on very narrow phones (320-323px)
+     without ever creating a scroll container. */
+  html{scroll-behavior:smooth; overflow-x:clip;}
   body{
     font-family:var(--font-body);
     color:var(--ink);
@@ -121,7 +136,38 @@
     .nav-links a:last-child{border-bottom:none;}
     .nav-cta{display:none;}
     .nav-toggle{display:block;}
+    /* keep the switch out of the middle: push it hard right, next to the burger */
+    .lang-switch{margin-left:auto;}
   }
+
+  /* ---------- language switch (EN / FR) ---------- */
+  .lang-switch{
+    position:relative; display:inline-flex; align-items:center; flex-shrink:0;
+    padding:3px; border:1px solid var(--line); border-radius:999px;
+    background:var(--mist); font-family:var(--font-mono);
+  }
+  /* the sliding pill is a transform-only pseudo-element: no layout work, and
+     the global reduced-motion rule snaps it instead of animating it.
+     Its width resolves to exactly one segment of the padding box
+     (50% - 3px), so translateX(100%) lands dead on the second segment. */
+  .lang-switch::before{
+    content:""; position:absolute; z-index:0; top:3px; bottom:3px; left:3px;
+    width:calc(50% - 3px); border-radius:999px;
+    background:linear-gradient(100deg, var(--purple), var(--pink));
+    transform:translateX(0); transition:transform .3s cubic-bezier(.4,.15,.2,1);
+  }
+  .lang-switch[data-active="en"]::before{transform:translateX(100%);}
+  .lang-btn{
+    position:relative; z-index:1; display:inline-flex; align-items:center; justify-content:center;
+    gap:5px; width:56px; padding:6px 4px; border:0; border-radius:999px; background:none;
+    cursor:pointer; color:var(--ink-faint); font-family:inherit; font-size:11px; font-weight:500;
+    letter-spacing:.08em; transition:color .2s ease;
+  }
+  .lang-btn:hover{color:var(--ink-soft);}
+  /* on top of the gradient fill, so it needs the dark ink used by .btn-pill */
+  .lang-btn[aria-pressed="true"]{color:#0B0414;}
+  .lang-flag{width:18px; height:13px; border-radius:2px; flex-shrink:0;}
+  .lang-code{line-height:1;}
 
   /* ---------- hero ---------- */
   .hero{padding:64px 0 0; border-bottom:none; overflow:visible;}
@@ -164,23 +210,196 @@
 
   /* hero visual / photo + counter */
   .hero-visual{position:relative;}
-  .hero-photo-frame{
-    position:relative; border-radius:24px; overflow:hidden; aspect-ratio:4/5;
-    background:linear-gradient(160deg, var(--bg-2), var(--bg-0));
-    border:1px solid var(--line);
+
+  /* ============================================================
+     3D PORTRAIT STAGE
+     One perspective, a stack of real Z planes: colour aura -> floor
+     pool -> depth-of-field echoes -> extruded portrait -> grade ->
+     glass -> capture HUD -> UI pinned in front of the screen.
+     Only transform/opacity animate. The echo's blur + fade are baked
+     into profile-echo.webp and the key light is a gradient, so the
+     parallax rig never pays for a filter.
+     ============================================================ */
+  .portrait3d{
+    position:relative;
+    perspective:1150px; perspective-origin:50% 44%;
+    animation:p3dIn .9s cubic-bezier(.2,.75,.3,1) both;
   }
-  .hero-photo-frame img{width:100%; height:100%; object-fit:cover; animation:photoIn .9s ease both;}
-  .hero-photo-frame::after{
-    content:""; position:absolute; inset:0;
-    background:linear-gradient(180deg, transparent 40%, rgba(11,4,20,0.65) 100%);
+  @keyframes p3dIn{from{opacity:0; transform:translateY(26px) scale(.985);} to{opacity:1; transform:none;}}
+
+  /* the tilting rig — JS writes --rx/--ry/--dx/--dy/--dz on .portrait3d */
+  .p3d-stage{
+    position:relative; aspect-ratio:4/5;
+    transform-style:preserve-3d;
+    transform:rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))
+              translate3d(var(--dx, 0px), var(--dy, 0px), var(--dz, 0px));
+    will-change:transform;
   }
-  @keyframes photoIn{from{opacity:0; transform:scale(1.04);} to{opacity:1; transform:scale(1);}}
+  .p3d-layer{position:absolute; inset:0; pointer-events:none;}
+
+  /* plane Z -260 : light bleeding out of the frame (soft gradient, no filter) */
+  .p3d-aura{
+    inset:-16% -14%; transform:translateZ(-260px);
+    background:
+      radial-gradient(46% 34% at 50% 30%, rgba(155,93,229,.50), transparent 70%),
+      radial-gradient(50% 38% at 62% 72%, rgba(241,91,181,.24), transparent 72%);
+    opacity:.85; transition:opacity .5s ease;
+  }
+  .portrait3d:hover .p3d-aura{opacity:1;}
+
+  /* plane Z -150 : the light pool the portrait stands on */
+  .p3d-pool{
+    inset:auto 6% -6% 6%; height:24%; transform:translateZ(-150px);
+    background:radial-gradient(50% 50% at 50% 50%, rgba(155,93,229,.34), rgba(155,93,229,0) 70%);
+  }
+
+  /* planes Z -130 / -54 : depth-of-field copies = true parallax */
+  .p3d-echo img{width:100%; height:100%; object-fit:cover; object-position:50% 30%;}
+  .p3d-echo--far{inset:-4% -3%; transform:translateZ(-130px) scale(1.06); opacity:.55;}
+  .p3d-echo--near{inset:2%; transform:translateZ(-54px) scale(1.02); opacity:.40;}
+
+
+  /* plane Z 0 : the framed portrait, extruded into a slab with layered shadows */
+  .p3d-card{
+    position:absolute; inset:0; margin:0;
+    border-radius:26px; transform-style:preserve-3d;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.07),
+      5px 7px 0 -3px rgba(26,12,42,.95),
+      11px 15px 0 -6px rgba(16,7,28,.80),
+      18px 26px 0 -9px rgba(9,4,17,.60),
+      30px 46px 70px -24px rgba(3,1,8,.95),
+      0 0 100px -20px rgba(155,93,229,.55);
+  }
+  .p3d-shot{
+    position:absolute; inset:0; display:block; overflow:hidden;
+    border-radius:inherit; background:var(--lqip) center 30%/cover no-repeat, linear-gradient(160deg, var(--bg-2), var(--bg-0));
+  }
+  .p3d-img{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; object-position:50% 30%;
+    transform:translate3d(calc(var(--px, 0) * -14px), calc(var(--py, 0) * -11px), 0) scale(1.06);
+    animation:imgFade 1.1s ease both;
+  }
+  @keyframes imgFade{from{opacity:0;} to{opacity:1;}}
+
+  /* plane Z +2 : grade — melts the studio backdrop into the page */
+  .p3d-veil{
+    position:absolute; inset:0; border-radius:inherit; transform:translateZ(2px);
+    background:
+      radial-gradient(112% 76% at 50% 14%, transparent 44%, rgba(11,4,20,.5) 100%),
+      linear-gradient(180deg, transparent 52%, rgba(11,4,20,.8) 100%);
+  }
+  /* plane Z +4 : grade — the studio's cool key light re-tuned to the palette.
+     Violet rake off the top-left corner, pink bounce off the bottom-right,
+     plus a second floor vignette so the caption always reads. Gradients
+     only: nothing here filters a plane that moves every frame. */
+  .p3d-grade{
+    position:absolute; inset:0; border-radius:inherit; transform:translateZ(4px);
+    pointer-events:none;
+    background:
+      radial-gradient(44% 36% at 2% 0%, rgba(155,93,229,.42), rgba(155,93,229,0) 68%),
+      radial-gradient(40% 32% at 102% 100%, rgba(241,91,181,.30), rgba(241,91,181,0) 70%),
+      linear-gradient(180deg, rgba(11,4,20,0) 58%, rgba(11,4,20,.5) 100%);
+  }
+
+  /* plane Z +8 : holographic sweep travelling across the glass, clipped to the frame */
+  .p3d-scan{
+    position:absolute; inset:0; border-radius:inherit; overflow:hidden;
+    transform:translateZ(8px); pointer-events:none;
+  }
+  .p3d-scan::before{
+    content:""; position:absolute; top:-30%; bottom:-30%; left:0; width:34%;
+    background:linear-gradient(100deg, transparent, rgba(255,255,255,.07) 42%, rgba(201,166,245,.2) 50%, rgba(255,255,255,.06) 58%, transparent);
+    transform:translateX(-160%) rotate(10deg);
+    animation:sweep 7.5s ease-in-out infinite;
+  }
+  @keyframes sweep{0%,72%{transform:translateX(-160%) rotate(10deg);} 100%{transform:translateX(430%) rotate(10deg);}}
+
+  /* plane Z +14 : specular highlight that tracks the pointer */
+  .p3d-gloss{
+    position:absolute; inset:0; border-radius:inherit; transform:translateZ(14px);
+    opacity:0; transition:opacity .45s ease; pointer-events:none;
+    background:radial-gradient(36% 28% at calc(50% + var(--px, 0) * 76%) calc(40% + var(--py, 0) * 76%), rgba(255,255,255,.18), rgba(255,255,255,0) 68%);
+  }
+  .portrait3d:hover .p3d-gloss{opacity:1;}
+
+  /* plane Z +6 : glass bezel — 1px gradient rim on the frame */
+  .p3d-edge{
+    position:absolute; inset:0; border-radius:inherit; padding:1px;
+    transform:translateZ(6px); pointer-events:none;
+    background:linear-gradient(150deg, rgba(201,166,245,.6), rgba(255,255,255,.12) 30%, rgba(255,255,255,.04) 55%, rgba(241,91,181,.42));
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite:exclude;
+  }
+
+  /* plane Z +22 : capture HUD — viewfinder brackets. The only piece of chrome
+     that sits on the glass rather than behind it, so it reads as a shared
+     focus between the portrait and the counter card. */
+  .p3d-hud{
+    position:absolute; inset:12px; border-radius:18px; pointer-events:none;
+    transform:translateZ(22px); opacity:.6; transition:opacity .45s ease;
+    --hud:rgba(201,166,245,.7);
+    background:
+      linear-gradient(var(--hud), var(--hud)) left 0 top 0/22px 1px no-repeat,
+      linear-gradient(var(--hud), var(--hud)) left 0 top 0/1px 22px no-repeat,
+      linear-gradient(var(--hud), var(--hud)) right 0 top 0/22px 1px no-repeat,
+      linear-gradient(var(--hud), var(--hud)) right 0 top 0/1px 22px no-repeat,
+      linear-gradient(var(--hud), var(--hud)) left 0 bottom 0/22px 1px no-repeat,
+      linear-gradient(var(--hud), var(--hud)) left 0 bottom 0/1px 22px no-repeat,
+      linear-gradient(var(--hud), var(--hud)) right 0 bottom 0/22px 1px no-repeat,
+      linear-gradient(var(--hud), var(--hud)) right 0 bottom 0/1px 22px no-repeat;
+  }
+  .portrait3d:hover .p3d-hud{opacity:1;}
+
+  /* plane Z +30 : caption sitting on the glass */
+  .p3d-name{
+    position:absolute; left:16px; bottom:16px; transform:translateZ(30px); margin:0;
+    display:inline-flex; align-items:center; gap:8px; max-width:calc(100% - 32px); overflow:hidden;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink); white-space:nowrap; text-overflow:ellipsis;
+    border:1px solid transparent; border-radius:999px; padding:7px 12px;
+    background:
+      linear-gradient(rgba(11,4,20,.72), rgba(11,4,20,.72)) padding-box,
+      linear-gradient(100deg, rgba(201,166,245,.85), rgba(255,255,255,.10) 46%, rgba(241,91,181,.75)) border-box;
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    box-shadow:0 10px 26px -16px rgba(4,1,10,.95);
+  }
+  .p3d-live{position:relative; width:6px; height:6px; border-radius:50%; background:#5BE3A5; flex-shrink:0;}
+  /* ping ring: transform/opacity only — box-shadow pulses would repaint every frame */
+  .p3d-live::after{
+    content:""; position:absolute; inset:-4px; border-radius:50%;
+    border:1px solid rgba(91,227,165,.65);
+    transform:scale(.4); animation:live 2.4s ease-out infinite;
+  }
+  @keyframes live{from{transform:scale(.4); opacity:.85;} to{transform:scale(1.9); opacity:0;}}
+
+  /* plane Z +70 : labels floating in front of the screen */
+  .p3d-chip{
+    position:absolute; display:inline-flex; align-items:center; pointer-events:none;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink); white-space:nowrap;
+    border:1px solid transparent; border-radius:999px; padding:7px 12px;
+    background:
+      linear-gradient(rgba(11,4,20,.78), rgba(11,4,20,.78)) padding-box,
+      linear-gradient(120deg, rgba(201,166,245,.6), rgba(241,91,181,.5)) border-box;
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    transform:translateZ(70px);
+    box-shadow:0 12px 28px -14px rgba(4,1,10,.95);
+  }
+  .p3d-chip--tl{top:16px; left:-14px;}
+  .p3d-chip--br{bottom:18px; right:-12px;}
 
   .counter-card{
-    position:absolute; right:-18px; top:24px; width:170px;
-    background:rgba(11,4,20,0.72); backdrop-filter:blur(10px);
+    position:absolute; right:-18px; top:-18px; width:170px;
+    background:rgba(11,4,20,0.72); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
     border:1px solid var(--line); border-radius:16px; padding:20px;
     font-family:var(--font-mono);
+    transform-style:flat;
+    transform:translate3d(calc(var(--px, 0) * -14px), calc(var(--py, 0) * -10px), 60px);
+    box-shadow:0 18px 40px -18px rgba(4,1,10,.9);
   }
   .counter-num{font-family:var(--font-display); font-size:30px; font-weight:800; color:var(--ink); line-height:1;}
   .counter-num span{font-size:15px; color:var(--ink-faint); font-family:var(--font-mono); font-weight:400;}
@@ -192,7 +411,14 @@
   .counter-nav button:hover{border-color:var(--purple-soft); color:var(--ink);}
   .counter-divider{flex:1; height:1px; background:var(--line);}
   .counter-label{font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--purple-soft); margin-bottom:4px;}
-  .counter-value{font-family:var(--font-body); font-size:13px; font-weight:600; color:var(--ink); margin-bottom:16px; min-height:34px;}
+  /* pre-line lets the "Based In" fact carry two cities from one plain-text
+     value ('Kigali, RW\nGoma, DRC') — no innerHTML needed. line-height/min-height
+     are pinned to exactly two lines so the absolutely positioned card does not
+     resize (and jitter) as the counter cycles between 1- and 2-line facts. */
+  .counter-value{
+    font-family:var(--font-body); font-size:13px; font-weight:600; color:var(--ink);
+    margin-bottom:16px; line-height:1.4; min-height:2.8em; white-space:pre-line;
+  }
   .view-profile{font-family:var(--font-body); font-size:12px; font-weight:600; color:var(--ink); display:inline-flex; gap:6px;}
   .view-profile:hover{color:var(--purple-soft);}
 
@@ -205,7 +431,7 @@
   }
   .status-strip-top{display:flex; align-items:center; gap:20px; flex-wrap:wrap;}
   .status-strip-label{font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; color:var(--ink-faint); text-transform:uppercase;}
-  .status-tabs{display:flex; gap:18px;}
+  .status-tabs{display:flex; flex-wrap:wrap; gap:18px;}
   .status-tab{font-size:13px; font-weight:600; color:var(--ink-soft);}
   .status-tab.active{color:var(--ink); position:relative;}
   .status-tab.active::after{content:""; position:absolute; left:0; right:0; bottom:-6px; height:2px; background:linear-gradient(90deg, var(--purple), var(--pink));}
@@ -292,8 +518,26 @@
 
   @media (max-width:900px){
     .hero-grid{grid-template-columns:1fr; gap:40px;}
-    .hero-visual{order:-1; max-width:340px; margin:0 auto;}
-    .counter-card{right:-8px;}
+    /* width:100% is load-bearing. The auto inline margins make this a
+       shrink-to-fit grid item, and every plane inside the stage is absolutely
+       positioned, so without a definite width the whole rig collapses to 0x0
+       and the portrait never paints on phones or tablets. */
+    .hero-visual{order:-1; width:100%; max-width:340px; margin:0 auto;}
+    .portrait3d{perspective:900px;}
+    /* keep every floating plane inside the frame so nothing can overflow the column */
+    .p3d-aura{inset:-6% -6%;}
+    .p3d-hud{inset:8px; border-radius:13px;}
+    .p3d-chip{transform:translateZ(44px);}
+    .p3d-chip--tl{left:10px; top:12px;}
+    /* stack the bottom chip above the caption pill: at 340px the two labels
+       are wider than the card and would otherwise overlap */
+    .p3d-chip--br{right:10px; bottom:54px;}
+    /* pull the counter card out over the top-right corner (like the desktop
+       build) so it clears the face instead of sitting on it */
+    .counter-card{
+      position:absolute; top:-10px; right:-10px; width:132px; padding:14px;
+      transform:translateZ(44px);
+    }
     .about .wrap{grid-template-columns:1fr;}
     .status-feed{grid-template-columns:1fr;}
   }
@@ -304,15 +548,42 @@
     .skills-tabs{gap:18px; overflow-x:auto; padding-bottom:8px;}
     .skills-tabs::-webkit-scrollbar{height:4px;}
     .skills-tabs::-webkit-scrollbar-thumb{background:var(--line); border-radius:2px;}
-    .nav .wrap{padding:0 16px;}
+    .nav .wrap{padding:0 16px; gap:12px;}
     .wrap{padding:0 16px;}
     .status-strip{padding:18px;}
     .status-strip-top{gap:12px;}
+    .p3d-scan{display:none;}
+    .p3d-chip{font-size:9px; padding:6px 10px;}
+    .counter-card{width:120px; padding:12px;}
+    .counter-num{font-size:26px;}
+    .p3d-name{font-size:9px; left:10px; bottom:10px; padding:6px 10px;}
+  }
+
+  @media (max-width:380px){
+    /* tightest phones: the two-city location badge plus the counter card are
+       together wider than the column, so shrink the badge a notch and pin the
+       card flush inside the frame instead of hanging over the corner */
+    .p3d-chip--tl{font-size:8px; padding:5px 8px;}
+    /* at this width the hero column is only ~288px, so a -6% aura (x1.12)
+       would push ~2px past the viewport — ease it back to a -3% halo */
+    .p3d-aura{inset:-3% -3%;}
+    .counter-card{right:0; width:110px; padding:10px;}
+    .counter-num{font-size:22px;}
+    /* the nav row is at its tightest here: shrink the mark and the switch
+       together so [mark][FR|EN][burger] still fits a 320px viewport */
+    .nav-mark{font-size:14px;}
+    .lang-btn{width:47px; padding:5px 2px; font-size:10px;}
+    .lang-flag{width:15px; height:11px;}
   }
 
   @media (prefers-reduced-motion: reduce){
-    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
     .t-item.reveal, .about-reveal, .skills-reveal{opacity:1; transform:none;}
+    .portrait3d, .p3d-img, .p3d-live{animation:none;}
+    .p3d-scan, .p3d-gloss{display:none;}
+    /* freeze the rig flat: the depth planes stay, the motion does not */
+    .p3d-stage{transform:none;}
+    .p3d-chip, .counter-card, .p3d-name, .p3d-grade, .p3d-hud{transform:none;}
   }
 </style>
 </head>
@@ -322,14 +593,49 @@
   <div class="wrap">
     <div class="nav-mark">HERI_<span class="accent">BWIZA</span></div>
     <ul class="nav-links" id="navLinks">
-      <li><a href="#top" class="current">Home</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#track">Experience</a></li>
-      <li><a href="#contact">Contact</a></li>
+      <li><a href="#top" class="current" data-i18n="nav.home">Home</a></li>
+      <li><a href="#about" data-i18n="nav.about">About</a></li>
+      <li><a href="#skills" data-i18n="nav.skills">Skills</a></li>
+      <li><a href="#track" data-i18n="nav.exp">Experience</a></li>
+      <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
     </ul>
-    <a href="#contact" class="nav-cta">Contact</a>
-    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+    <!-- language switch: flags are inline SVG so they render identically on
+         Windows (which has no colour flag emoji) and cost no extra request -->
+    <div class="lang-switch" id="langSwitch" data-active="en" role="group" aria-label="Language / Langue">
+      <button type="button" class="lang-btn" data-set-lang="fr" aria-pressed="false" lang="fr" title="Français">
+        <svg class="lang-flag" viewBox="0 0 24 18" aria-hidden="true" focusable="false">
+          <rect width="8" height="18" fill="#002395"/>
+          <rect x="8" width="8" height="18" fill="#FFFFFF"/>
+          <rect x="16" width="8" height="18" fill="#ED2939"/>
+        </svg>
+        <span class="lang-code">FR</span>
+      </button>
+      <button type="button" class="lang-btn" data-set-lang="en" aria-pressed="true" lang="en" title="English">
+        <svg class="lang-flag" viewBox="0 0 24 18" aria-hidden="true" focusable="false">
+          <rect width="24" height="18" fill="#FFFFFF"/>
+          <g fill="#B22234">
+            <rect width="24" height="1.385" y="0"/>
+            <rect width="24" height="1.385" y="2.77"/>
+            <rect width="24" height="1.385" y="5.54"/>
+            <rect width="24" height="1.385" y="8.31"/>
+            <rect width="24" height="1.385" y="11.08"/>
+            <rect width="24" height="1.385" y="13.85"/>
+            <rect width="24" height="1.385" y="16.62"/>
+          </g>
+          <rect width="9.6" height="9.7" fill="#3C3B6E"/>
+          <g fill="#FFFFFF">
+            <circle cx="1.6" cy="1.7" r="0.42"/><circle cx="4.0" cy="1.7" r="0.42"/><circle cx="6.4" cy="1.7" r="0.42"/><circle cx="8.0" cy="1.7" r="0.42"/>
+            <circle cx="2.8" cy="3.3" r="0.42"/><circle cx="5.2" cy="3.3" r="0.42"/><circle cx="7.6" cy="3.3" r="0.42"/>
+            <circle cx="1.6" cy="4.9" r="0.42"/><circle cx="4.0" cy="4.9" r="0.42"/><circle cx="6.4" cy="4.9" r="0.42"/><circle cx="8.0" cy="4.9" r="0.42"/>
+            <circle cx="2.8" cy="6.5" r="0.42"/><circle cx="5.2" cy="6.5" r="0.42"/><circle cx="7.6" cy="6.5" r="0.42"/>
+            <circle cx="1.6" cy="8.1" r="0.42"/><circle cx="4.0" cy="8.1" r="0.42"/><circle cx="6.4" cy="8.1" r="0.42"/><circle cx="8.0" cy="8.1" r="0.42"/>
+          </g>
+        </svg>
+        <span class="lang-code">EN</span>
+      </button>
+    </div>
+    <a href="#contact" class="nav-cta" data-i18n="nav.contactCta">Contact</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" data-i18n-aria-label="aria.navToggle" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -339,14 +645,14 @@
   <div class="wrap">
     <div class="hero-grid">
       <div>
-        <div class="eyebrow"><span class="dot"></span> Open to opportunities</div>
-        <h1>Heri Bwiza Alain<span class="last">Turning field data into decisions that hold up.</span></h1>
-        <div class="role">ICT & BUSINESS SYSTEMS SPECIALIST</div>
-        <p class="lead">BICT graduate with 3+ years managing digital data collection, databases and IT support for WHO and local NGO programs across Eastern DRC.</p>
+        <div class="eyebrow"><span class="dot"></span> <span data-i18n="hero.eyebrow">Open to opportunities</span></div>
+        <h1>Heri Bwiza Alain<span class="last" data-i18n="hero.tagline">Turning field data into decisions that hold up.</span></h1>
+        <div class="role" data-i18n="hero.role">ICT &amp; BUSINESS SYSTEMS SPECIALIST</div>
+        <p class="lead" data-i18n="hero.lead">BICT graduate with 3+ years managing digital data collection, databases and IT support for WHO and local NGO programs across Eastern DRC.</p>
 
         <div class="cta-row">
-          <a href="#contact" class="btn-pill">Contact me</a>
-          <a href="Heri_Bwiza_Alain_CV.pdf.pdf" id="cvBtn" class="btn-pill btn-pill-ghost" download target="_blank">Download CV</a>
+          <a href="#contact" class="btn-pill" data-i18n="hero.ctaContact">Contact me</a>
+          <a href="Heri_Bwiza_Alain_CV.pdf.pdf" id="cvBtn" class="btn-pill btn-pill-ghost" download target="_blank" data-i18n="hero.ctaCv">Download CV</a>
         </div>
         <div class="link-row">
           <a href="https://github.com/Heribwiza" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
@@ -356,48 +662,74 @@
       </div>
 
       <div class="hero-visual">
-        <div class="hero-photo-frame">
-          <picture>
-            <source srcset="WhatsApp Image 2026-08-10 at 12.54.19 AM.webp" type="image/webp">
-            <img
-              src="WhatsApp Image 2026-08-10 at 12.54.19 AM.jpeg"
-              alt="Heri Bwiza Alain — Professional Profile"
-              width="480" height="600"
-              decoding="async"
-              fetchpriority="high">
-          </picture>
-        </div>
-        <div class="counter-card">
-          <div class="counter-num" id="counterNum">01<span>/04</span></div>
-          <div class="counter-nav">
-            <button id="counterPrev" aria-label="Previous fact">‹</button>
-            <span class="counter-divider"></span>
-            <button id="counterNext" aria-label="Next fact">›</button>
+        <div class="portrait3d" id="portrait3d" data-portrait-3d>
+          <div class="p3d-stage">
+            <span class="p3d-layer p3d-aura" aria-hidden="true"></span>
+            <span class="p3d-layer p3d-pool" aria-hidden="true"></span>
+            <span class="p3d-layer p3d-echo p3d-echo--far" aria-hidden="true">
+              <img src="profile-echo.webp" alt="" width="480" height="600" decoding="async" fetchpriority="low">
+            </span>
+            <span class="p3d-layer p3d-echo p3d-echo--near" aria-hidden="true">
+              <img src="profile-echo.webp" alt="" width="480" height="600" decoding="async" fetchpriority="low">
+            </span>
+            <figure class="p3d-card">
+              <picture class="p3d-shot">
+                <source type="image/avif" srcset="profile-480.avif 480w, profile-960.avif 960w" sizes="(max-width: 900px) 320px, 470px">
+                <source type="image/webp" srcset="profile-480.webp 480w, profile-960.webp 960w" sizes="(max-width: 900px) 320px, 470px">
+                <img
+                  class="p3d-img"
+                  src="profile-960.jpg"
+                  srcset="profile-480.jpg 480w, profile-960.jpg 960w"
+                  sizes="(max-width: 900px) 320px, 470px"
+                  alt="Heri Bwiza Alain — professional portrait"
+                  data-i18n-alt="img.portraitAlt"
+                  width="960" height="1200"
+                  decoding="async"
+                  fetchpriority="high">
+              </picture>
+              <span class="p3d-veil" aria-hidden="true"></span>
+              <span class="p3d-grade" aria-hidden="true"></span>
+              <span class="p3d-edge" aria-hidden="true"></span>
+              <span class="p3d-scan" aria-hidden="true"></span>
+              <span class="p3d-gloss" aria-hidden="true"></span>
+              <span class="p3d-hud" aria-hidden="true"></span>
+              <figcaption class="p3d-name"><span class="p3d-live" aria-hidden="true"></span>Heri Bwiza Alain · Kigali · Goma</figcaption>
+            </figure>
+            <span class="p3d-chip p3d-chip--tl" aria-hidden="true" data-i18n="chip.geo">Kigali, RW · Goma, DRC</span>
+            <span class="p3d-chip p3d-chip--br" aria-hidden="true" data-i18n="chip.role">ICT · Data · Systems</span>
+            <div class="counter-card">
+              <div class="counter-num" id="counterNum">01<span>/04</span></div>
+              <div class="counter-nav">
+                <button type="button" id="counterPrev" aria-label="Previous fact" data-i18n-aria-label="counter.prevAria">‹</button>
+                <span class="counter-divider"></span>
+                <button type="button" id="counterNext" aria-label="Next fact" data-i18n-aria-label="counter.nextAria">›</button>
+              </div>
+              <div class="counter-label" id="counterLabel">Role</div>
+              <div class="counter-value" id="counterValue">BICT Assistant</div>
+              <a href="#about" class="view-profile" data-i18n="counter.viewProfile">View Profile →</a>
+            </div>
           </div>
-          <div class="counter-label" id="counterLabel">Role</div>
-          <div class="counter-value" id="counterValue">BICT Assistant</div>
-          <a href="#about" class="view-profile">View Profile →</a>
         </div>
       </div>
     </div>
 
     <div class="status-strip">
       <div class="status-strip-top">
-        <span class="status-strip-label">Status</span>
+        <span class="status-strip-label" data-i18n="status.label">Status</span>
         <div class="status-tabs">
-          <span class="status-tab active">Open to work</span>
-          <span class="status-tab">Kigali, Rwanda</span>
-          <span class="status-tab">Eastern DRC</span>
+          <span class="status-tab active" data-i18n="status.tabOpen">Open to work</span>
+          <span class="status-tab" data-i18n="status.tabKigali">Kigali, Rwanda</span>
+          <span class="status-tab" data-i18n="status.tabGoma">Goma, DR Congo</span>
         </div>
       </div>
       <div class="status-feed">
         <div class="feed-item">
-          <span class="feed-meta">@HERI_BWIZA · Currently</span>
-          <p>Looking for ICT and business-systems roles across Rwanda and DRC.</p>
+          <span class="feed-meta">@HERI_BWIZA · <span data-i18n="status.now">Currently</span></span>
+          <p data-i18n="status.nowText">Looking for ICT and business-systems roles across Rwanda and DRC.</p>
         </div>
         <div class="feed-item">
-          <span class="feed-meta">@HERI_BWIZA · Track record</span>
-          <p>3+ years running data collection, databases and IT support for WHO and NGO programs.</p>
+          <span class="feed-meta">@HERI_BWIZA · <span data-i18n="status.record">Track record</span></span>
+          <p data-i18n="status.recordText">3+ years running data collection, databases and IT support for WHO and NGO programs.</p>
         </div>
       </div>
     </div>
@@ -407,36 +739,36 @@
 <section class="about" id="about">
   <div class="wrap">
     <div>
-      <span class="section-eyebrow">01 — About</span>
-      <h2>The record</h2>
-      <p>Holder of a Bachelor's Degree (Licence A0) in BICT — Business Information & Communication Technology — from Mount Kenya University, graduated with Second Class Honours (Lower Division). Trained in information management, business systems and communication technologies applied to the professional world.</p>
-      <p>Over 3 years of hands-on experience in digital data collection and management (KOBO Toolbox), databases (Access), content management systems, IT support, customer service and community communication — including work with WHO and local NGOs in Eastern DRC.</p>
-      <p>Bilingual French–English, fluent in Swahili, with a good working level of Lingala. Comfortable across MS Office, Canva, Adobe, Trello and Slack/Teams in support of the administrative and technological performance of organizations.</p>
+      <span class="section-eyebrow" data-i18n="about.eyebrow">01 — About</span>
+      <h2 data-i18n="about.h2">The record</h2>
+      <p data-i18n="about.p1">Holder of a Bachelor's Degree (Licence A0) in BICT — Business Information &amp; Communication Technology — from Mount Kenya University, graduated with Second Class Honours (Lower Division). Trained in information management, business systems and communication technologies applied to the professional world.</p>
+      <p data-i18n="about.p2">Over 3 years of hands-on experience in digital data collection and management (ODK, Microsoft Forms), databases and data analysis (SQL, Power BI, Excel), content management systems, IT support, customer service and community communication — including work with WHO and local NGOs in Eastern DRC.</p>
+      <p data-i18n="about.p3">Bilingual French–English, fluent in Swahili, with a good working level of Lingala. Comfortable across Microsoft 365 (Excel, SharePoint), Power BI, SQL, Power Automate, Airtable, Notion, WordPress and Slack/Teams in support of the administrative and technological performance of organizations.</p>
 
       <div class="stats-row">
         <div class="stat-item">
           <div class="stat-num">3+</div>
-          <div class="stat-label">Years Experience</div>
+          <div class="stat-label" data-i18n="stat.years">Years Experience</div>
         </div>
         <div class="stat-item">
           <div class="stat-num">4</div>
-          <div class="stat-label">Roles Held</div>
+          <div class="stat-label" data-i18n="stat.roles">Roles Held</div>
         </div>
         <div class="stat-item">
           <div class="stat-num">2</div>
-          <div class="stat-label">Organizations</div>
+          <div class="stat-label" data-i18n="stat.orgs">Organizations</div>
         </div>
       </div>
     </div>
     <div class="about-reveal">
       <div class="cred-box">
-        <div class="cb-title">Credentials</div>
-        <div class="cb-degree">B.A. (Licence A0), Business Information & Communication Technology</div>
-        <div class="cb-sub">Mount Kenya University · 2020–2023 · Second Class Honours, Lower Division</div>
+        <div class="cb-title" data-i18n="cred.title">Credentials</div>
+        <div class="cb-degree" data-i18n="cred.degree1">B.A. (Licence A0), Business Information &amp; Communication Technology</div>
+        <div class="cb-sub" data-i18n="cred.sub1">Mount Kenya University · 2020–2023 · Second Class Honours, Lower Division</div>
       </div>
       <div class="cred-box">
-        <div class="cb-title">Credentials</div>
-        <div class="cb-degree">State Diploma (A2), Social Techniques</div>
+        <div class="cb-title" data-i18n="cred.title">Credentials</div>
+        <div class="cb-degree" data-i18n="cred.degree2">State Diploma (A2), Social Techniques</div>
         <div class="cb-sub">JUHUDI C.S. · 2017–2019</div>
       </div>
     </div>
@@ -445,25 +777,26 @@
 
 <section class="skills" id="skills">
   <div class="wrap skills-reveal">
-    <span class="section-eyebrow">02 — Capabilities</span>
-    <h2>What I bring to a team</h2>
+    <span class="section-eyebrow" data-i18n="skills.eyebrow">02 — Capabilities</span>
+    <h2 data-i18n="skills.h2">What I bring to a team</h2>
 
     <div class="skills-tabs">
-      <button class="skills-tab active" data-tab="core">Core Skills</button>
-      <button class="skills-tab" data-tab="software">Software & Tools</button>
-      <button class="skills-tab" data-tab="languages">Languages</button>
+      <button class="skills-tab active" data-tab="core" data-i18n="skills.tabCore">Core Skills</button>
+      <button class="skills-tab" data-tab="software" data-i18n="skills.tabSoftware">Software &amp; Tools</button>
+      <button class="skills-tab" data-tab="languages" data-i18n="skills.tabLang">Languages</button>
     </div>
 
     <div class="skill-groups active" id="core">
       <div class="skill-group">
         <div class="chip-row">
-          <span class="chip">Databases & CMS (Access)</span>
-          <span class="chip">Digital Data Collection (KOBO Toolbox)</span>
-          <span class="chip">IT Support & Maintenance</span>
-          <span class="chip">Project Mgmt (Trello) & M&E</span>
-          <span class="chip">Community Communication & Outreach</span>
-          <span class="chip">Customer Service & Report Writing</span>
-          <span class="chip">Cross-Cultural Teamwork</span>
+          <span class="chip" data-i18n="chip.core1">Data Analysis &amp; Reporting (Power BI, Excel)</span>
+          <span class="chip" data-i18n="chip.core2">Databases &amp; Data Management (SQL, Airtable)</span>
+          <span class="chip" data-i18n="chip.core3">Digital Data Collection (ODK, MS Forms)</span>
+          <span class="chip" data-i18n="chip.core4">Project Management (Jira, Asana) &amp; M&amp;E</span>
+          <span class="chip" data-i18n="chip.core5">IT Support &amp; Systems Maintenance</span>
+          <span class="chip" data-i18n="chip.core6">Community Communication &amp; Outreach</span>
+          <span class="chip" data-i18n="chip.core7">Customer Service &amp; Report Writing</span>
+          <span class="chip" data-i18n="chip.core8">Cross-Cultural Teamwork</span>
         </div>
       </div>
     </div>
@@ -471,12 +804,14 @@
     <div class="skill-groups" id="software">
       <div class="skill-group">
         <div class="chip-row">
-          <span class="chip">MS Office (Word, Excel) — Advanced</span>
-          <span class="chip">CMS Platforms — Advanced</span>
-          <span class="chip">Canva / Adobe — Advanced</span>
-          <span class="chip">Slack / Teams — Advanced</span>
-          <span class="chip">Access — Intermediate</span>
-          <span class="chip">Trello — Beginner</span>
+          <span class="chip" data-i18n="chip.sw1">Microsoft 365 (Excel, Word, SharePoint) — Advanced</span>
+          <span class="chip" data-i18n="chip.sw2">Power BI — Intermediate</span>
+          <span class="chip" data-i18n="chip.sw3">SQL / MySQL — Intermediate</span>
+          <span class="chip" data-i18n="chip.sw4">Power Automate / Power Apps — Intermediate</span>
+          <span class="chip" data-i18n="chip.sw5">Airtable / Notion — Intermediate</span>
+          <span class="chip" data-i18n="chip.sw6">WordPress (CMS) — Advanced</span>
+          <span class="chip" data-i18n="chip.sw7">Canva / Figma — Advanced</span>
+          <span class="chip" data-i18n="chip.sw8">Slack / Teams / Zoom — Advanced</span>
         </div>
       </div>
     </div>
@@ -484,10 +819,10 @@
     <div class="skill-groups" id="languages">
       <div class="skill-group">
         <div class="chip-row">
-          <span class="chip">French — Fluent</span>
-          <span class="chip">English — Fluent</span>
-          <span class="chip">Swahili — Fluent</span>
-          <span class="chip">Lingala — Good level</span>
+          <span class="chip" data-i18n="chip.lang1">French — Fluent</span>
+          <span class="chip" data-i18n="chip.lang2">English — Fluent</span>
+          <span class="chip" data-i18n="chip.lang3">Swahili — Fluent</span>
+          <span class="chip" data-i18n="chip.lang4">Lingala — Good level</span>
         </div>
       </div>
     </div>
@@ -496,28 +831,28 @@
 
 <section class="track" id="track">
   <div class="wrap">
-    <span class="section-eyebrow">03 — Experience</span>
-    <h2>Where the experience comes from</h2>
+    <span class="section-eyebrow" data-i18n="track.eyebrow">03 — Experience</span>
+    <h2 data-i18n="track.h2">Where the experience comes from</h2>
     <div class="timeline">
       <div class="t-item reveal">
-        <div class="t-tag">Jun 2024 – Sep 2024</div>
-        <h3>Communications Officer · Renaître Grands Lacs</h3>
-        <p>Designed and published awareness-raising content on social media and CMS platforms to strengthen the organization's digital visibility. Facilitated community training and awareness sessions, and collected and documented beneficiary testimonials for project reports.</p>
+        <div class="t-tag" data-i18n="track.d1">Jun 2024 – Sep 2024</div>
+        <h3 data-i18n="track.t1">Communications Officer · Renaître Grands Lacs</h3>
+        <p data-i18n="track.p1">Designed and published awareness-raising content on social media and CMS platforms to strengthen the organization's digital visibility. Facilitated community training and awareness sessions, and collected and documented beneficiary testimonials for project reports.</p>
       </div>
       <div class="t-item reveal">
-        <div class="t-tag">Feb 2023 – Mar 2024</div>
-        <h3>LQS Investigator · Kinshasa School of Public Health / WHO – Kirotshe</h3>
-        <p>Carried out field data collection using KOBO Toolbox as part of a vaccination coverage survey (Lot Quality Assurance Sampling). Analyzed and validated results with WHO supervision teams, drafted follow-up reports, and monitored survey participants within multidisciplinary humanitarian teams.</p>
+        <div class="t-tag" data-i18n="track.d2">Feb 2023 – Mar 2024</div>
+        <h3 data-i18n="track.t2">LQS Investigator · Kinshasa School of Public Health / WHO – Kirotshe</h3>
+        <p data-i18n="track.p2">Carried out field data collection using KOBO Toolbox as part of a vaccination coverage survey (Lot Quality Assurance Sampling). Analyzed and validated results with WHO supervision teams, drafted follow-up reports, and monitored survey participants within multidisciplinary humanitarian teams.</p>
       </div>
       <div class="t-item reveal">
-        <div class="t-tag">Jun 2023 – Sep 2023</div>
-        <h3>Customer Service Intern · SATIMAX Travel</h3>
-        <p>Handled client welcome, advice and travel bookings. Processed payments and transactions with rigor and reliability, delivering quality customer service in a multicultural environment (Kigali).</p>
+        <div class="t-tag" data-i18n="track.d3">Jun 2023 – Sep 2023</div>
+        <h3 data-i18n="track.t3">Customer Service Intern · SATIMAX Travel</h3>
+        <p data-i18n="track.p3">Handled client welcome, advice and travel bookings. Processed payments and transactions with rigor and reliability, delivering quality customer service in a multicultural environment (Kigali).</p>
       </div>
       <div class="t-item reveal">
-        <div class="t-tag">Jun 2018 – Sep 2019</div>
-        <h3>Assistant · USHINDI Cyber Café</h3>
-        <p>Managed customer relations and provided daily technical IT support. Ensured maintenance of computer equipment, and trained and mentored new employees on tools and procedures.</p>
+        <div class="t-tag" data-i18n="track.d4">Jun 2018 – Sep 2019</div>
+        <h3 data-i18n="track.t4">Assistant · USHINDI Cyber Café</h3>
+        <p data-i18n="track.p4">Managed customer relations and provided daily technical IT support. Ensured maintenance of computer equipment, and trained and mentored new employees on tools and procedures.</p>
       </div>
     </div>
   </div>
@@ -525,23 +860,23 @@
 
 <section class="contact" id="contact">
   <div class="wrap">
-    <span class="section-eyebrow" style="grid-column:1/-1;">04 — Contact</span>
-    <h2>Let's talk</h2>
-    <p class="lead">Fastest way to reach me is WhatsApp or a direct call. Or click the button to send me an email directly.</p>
+    <span class="section-eyebrow" style="grid-column:1/-1;" data-i18n="contact.eyebrow">04 — Contact</span>
+    <h2 data-i18n="contact.h2">Let's talk</h2>
+    <p class="lead" data-i18n="contact.lead">Fastest way to reach me is WhatsApp or a direct call. Or click the button to send me an email directly.</p>
     <div class="direct-list">
-      <a class="direct-item" href="mailto:hheribwiza1@gmail.com"><span class="di-k">EMAIL</span><span class="di-v">hheribwiza1@gmail.com</span></a>
-      <a class="direct-item" href="tel:+250785782231"><span class="di-k">PHONE</span><span class="di-v">+250 785 782 231</span></a>
-      <a class="direct-item" href="tel:+243994150151"><span class="di-k">PHONE</span><span class="di-v">+243 994 150 151</span></a>
-      <a class="direct-item" href="https://wa.me/250785782231" target="_blank" rel="noopener noreferrer"><span class="di-k">WHATSAPP</span><span class="di-v">Message directly</span></a>
-      <a class="direct-item" href="https://www.linkedin.com/in/heri-alain-45a48722a/" target="_blank" rel="noopener noreferrer"><span class="di-k">LINKEDIN</span><span class="di-v">/in/heri-alain</span></a>
-      <a class="direct-item" href="https://github.com/Heribwiza" target="_blank" rel="noopener noreferrer"><span class="di-k">GITHUB</span><span class="di-v">@Heribwiza</span></a>
+      <a class="direct-item" href="mailto:hheribwiza1@gmail.com"><span class="di-k" data-i18n="contact.kEmail">EMAIL</span><span class="di-v">hheribwiza1@gmail.com</span></a>
+      <a class="direct-item" href="tel:+250785782231"><span class="di-k" data-i18n="contact.kPhone">PHONE</span><span class="di-v">+250 785 782 231</span></a>
+      <a class="direct-item" href="tel:+243994150151"><span class="di-k" data-i18n="contact.kPhone">PHONE</span><span class="di-v">+243 994 150 151</span></a>
+      <a class="direct-item" href="https://wa.me/250785782231" target="_blank" rel="noopener noreferrer"><span class="di-k" data-i18n="contact.kWhatsapp">WHATSAPP</span><span class="di-v" data-i18n="contact.vWhatsapp">Message directly</span></a>
+      <a class="direct-item" href="https://www.linkedin.com/in/heri-alain-45a48722a/" target="_blank" rel="noopener noreferrer"><span class="di-k" data-i18n="contact.kLinkedin">LINKEDIN</span><span class="di-v">/in/heri-alain</span></a>
+      <a class="direct-item" href="https://github.com/Heribwiza" target="_blank" rel="noopener noreferrer"><span class="di-k" data-i18n="contact.kGithub">GITHUB</span><span class="di-v">@Heribwiza</span></a>
     </div>
 
     <div class="contact-action">
-      <a href="mailto:hheribwiza1@gmail.com?subject=Portfolio%20Contact" class="btn-pill" aria-label="Send me an email">
+      <a href="mailto:hheribwiza1@gmail.com?subject=Portfolio%20Contact" class="btn-pill" id="mailBtn" aria-label="Send me an email" data-i18n="contact.sendEmail" data-i18n-aria-label="contact.sendEmail">
         Send Me an Email
       </a>
-      <p class="contact-note">This will open your default email application with my address already filled in.</p>
+      <p class="contact-note" data-i18n="contact.note">This will open your default email application with my address already filled in.</p>
     </div>
   </div>
 </section>
@@ -549,12 +884,201 @@
 <footer>
   <div class="wrap">
     <p>© <span id="year"></span> HERI_BWIZA</p>
-    <p>Kigali, Rwanda · Eastern DRC</p>
+    <p data-i18n="footer.where">Kigali, Rwanda · Goma, DR Congo</p>
   </div>
 </footer>
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  /* ==========================================================================
+     i18n — EN / FR
+     English is the authored default and is read back out of the DOM at boot,
+     so only the French half is hand-written and the two languages can never
+     drift apart. Swapping <html lang> as well as every [data-i18n] text node
+     and [data-i18n-aria-label|alt|title] attribute keeps screen readers,
+     spell check and the document title honest. Keys whose French equals the
+     English (WHATSAPP, LINKEDIN, GITHUB, "Kigali, Rwanda") are deliberately
+     absent — pick() falls back to the captured English.
+     ========================================================================== */
+  const TITLE = {
+    en: document.title,
+    fr: 'Heri Bwiza Alain — Assistant BICT | Spécialiste ICT & systèmes de gestion'
+  };
+  const FR = {
+    /* nav */
+    'nav.home': 'Accueil',
+    'nav.about': 'À propos',
+    'nav.skills': 'Compétences',
+    'nav.exp': 'Expérience',
+    'nav.contact': 'Contact',
+    'nav.contactCta': 'Contact',
+    'aria.navToggle': 'Ouvrir ou fermer le menu',
+
+    /* hero */
+    'hero.eyebrow': 'Ouvert aux opportunités',
+    'hero.tagline': 'Transformer la technologie et les données en solutions concrètes.',
+    'hero.role': 'SPÉCIALISTE ICT & SYSTÈMES DE GESTION',
+    'hero.lead': "Diplômé en BICT avec plus de 3 ans de gestion de la collecte de données numériques, de bases de données et du support informatique pour des programmes de l'OMS et d'ONG locales dans l'Est de la RDC.",
+    'hero.ctaContact': 'Me contacter',
+    'hero.ctaCv': 'Télécharger le CV',
+    'img.portraitAlt': 'Heri Bwiza Alain — portrait professionnel',
+    'chip.geo': 'Kigali, RW · Goma, RDC',
+    'chip.role': 'ICT · Données · Systèmes',
+
+    /* counter card */
+    'counter.prevAria': 'Fait précédent',
+    'counter.nextAria': 'Fait suivant',
+    'counter.viewProfile': 'Voir le profil →',
+
+    /* status strip */
+    'status.label': 'Statut',
+    'status.tabOpen': 'Disponible',
+    'status.tabGoma': 'Goma, RD Congo',
+    'status.now': 'Actuellement',
+    'status.record': 'Réalisations',
+    'status.nowText': 'À la recherche de postes en ICT et systèmes de gestion au Rwanda et en RDC.',
+    'status.recordText': "Plus de 3 ans de collecte de données, de gestion de bases de données et de support informatique pour des programmes de l'OMS et d'ONG.",
+
+    /* about */
+    'about.eyebrow': '01 — À propos',
+    'about.h2': 'Le parcours',
+    'about.p1': "Licence (A0) en BICT — Business Information & Communication Technology — obtenue à Mount Kenya University avec la mention « Second Class Honours, Lower Division ». Formation en gestion de l'information, systèmes de gestion et technologies de communication appliquées au monde professionnel.",
+    'about.p2': "Plus de 3 ans d'expérience pratique en collecte et gestion de données numériques (ODK, Microsoft Forms), bases de données et analyse de données (SQL, Power BI, Excel), systèmes de gestion de contenu, support informatique, service client et communication communautaire — dont des missions avec l'OMS et des ONG locales dans l'Est de la RDC.",
+    'about.p3': "Bilingue français–anglais, courant en swahili et d'un bon niveau professionnel en lingala. À l'aise avec Microsoft 365 (Excel, SharePoint), Power BI, SQL, Power Automate, Airtable, Notion, WordPress et Slack/Teams pour soutenir la performance administrative et technologique des organisations.",
+    'stat.years': "Années d'expérience",
+    'stat.roles': 'Postes occupés',
+    'stat.orgs': 'Organisations',
+    'cred.title': 'Diplômes',
+    'cred.degree1': 'Licence (A0), Business Information & Communication Technology',
+    'cred.sub1': 'Mount Kenya University · 2020–2023 · Mention : Second Class Honours (Lower Division)',
+    'cred.degree2': "Diplôme d'État (A2), Techniques sociales",
+
+    /* skills */
+    'skills.eyebrow': '02 — Compétences',
+    'skills.h2': "Ce que j'apporte à une équipe",
+    'skills.tabCore': 'Compétences clés',
+    'skills.tabSoftware': 'Logiciels & outils',
+    'skills.tabLang': 'Langues',
+    'chip.core1': 'Analyse de données & reporting (Power BI, Excel)',
+    'chip.core2': 'Bases de données & gestion des données (SQL, Airtable)',
+    'chip.core3': 'Collecte numérique de données (ODK, MS Forms)',
+    'chip.core4': 'Gestion de projet (Jira, Asana) & S&E',
+    'chip.core5': 'Support & maintenance informatiques',
+    'chip.core6': 'Communication communautaire & sensibilisation',
+    'chip.core7': 'Service client & rédaction de rapports',
+    'chip.core8': 'Travail en équipe interculturel',
+    'chip.sw1': 'Microsoft 365 (Excel, Word, SharePoint) — Avancé',
+    'chip.sw2': 'Power BI — Intermédiaire',
+    'chip.sw3': 'SQL / MySQL — Intermédiaire',
+    'chip.sw4': 'Power Automate / Power Apps — Intermédiaire',
+    'chip.sw5': 'Airtable / Notion — Intermédiaire',
+    'chip.sw6': 'WordPress (CMS) — Avancé',
+    'chip.sw7': 'Canva / Figma — Avancé',
+    'chip.sw8': 'Slack / Teams / Zoom — Avancé',
+    'chip.lang1': 'Français — Courant',
+    'chip.lang2': 'Anglais — Courant',
+    'chip.lang3': 'Swahili — Courant',
+    'chip.lang4': 'Lingala — Bon niveau',
+
+    /* experience */
+    'track.eyebrow': '03 — Expérience',
+    'track.h2': "D'où vient mon expérience",
+    'track.d1': 'Juin 2024 – Sept. 2024',
+    'track.t1': 'Chargé de communication · Renaître Grands Lacs',
+    'track.p1': "Conception et publication de contenus de sensibilisation sur les réseaux sociaux et les plateformes CMS afin de renforcer la visibilité numérique de l'organisation. Animation de formations et de séances de sensibilisation communautaires, collecte et documentation de témoignages de bénéficiaires pour les rapports de projet.",
+    'track.d2': 'Févr. 2023 – Mars 2024',
+    'track.t2': 'Enquêteur LQS · École de Santé Publique de Kinshasa / OMS – Kirotshe',
+    'track.p2': "Réalisation de la collecte de données de terrain avec KOBO Toolbox dans le cadre d'une enquête de couverture vaccinale (Lot Quality Assurance Sampling). Analyse et validation des résultats avec les équipes de supervision de l'OMS, rédaction de rapports de suivi et suivi des participants à l'enquête au sein d'équipes humanitaires pluridisciplinaires.",
+    'track.d3': 'Juin 2023 – Sept. 2023',
+    'track.t3': 'Stagiaire service client · SATIMAX Travel',
+    'track.p3': 'Accueil et conseil des clients, gestion des réservations de voyage. Traitement rigoureux et fiable des paiements et transactions, avec un service client de qualité dans un environnement multiculturel (Kigali).',
+    'track.d4': 'Juin 2018 – Sept. 2019',
+    'track.t4': 'Assistant · USHINDI Cyber Café',
+    'track.p4': "Gestion de la relation client et support informatique technique au quotidien. Maintenance du parc informatique, formation et accompagnement des nouveaux employés sur les outils et procédures.",
+
+    /* contact */
+    'contact.eyebrow': '04 — Contact',
+    'contact.h2': 'Parlons-en',
+    'contact.lead': "Le plus rapide pour me joindre : WhatsApp ou un appel direct. Vous pouvez aussi cliquer sur le bouton pour m'envoyer directement un e-mail.",
+    'contact.kEmail': 'E-MAIL',
+    'contact.kPhone': 'TÉLÉPHONE',
+    'contact.vWhatsapp': 'Écrire directement',
+    'contact.sendEmail': 'Envoyez-moi un e-mail',
+    'contact.note': "Cette action ouvrira votre application de messagerie par défaut, avec mon adresse déjà renseignée.",
+    'footer.where': 'Kigali, Rwanda · Goma, RD Congo'
+  };
+
+  const ATTRS = ['aria-label', 'alt', 'title'];
+  const EN = { text: {}, attr: {} };
+  let CURRENT_LANG = 'en';
+
+  /* storage can throw (private windows / locked-down file://) — never break the
+     page over a remembered preference */
+  function safeGet(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function safeSet(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+
+  /* remembered choice wins; otherwise follow the browser's own language */
+  function detectLang(){
+    const stored = safeGet('hb-lang');
+    if (stored === 'fr' || stored === 'en') return stored;
+    return String(navigator.language || 'en').toLowerCase().indexOf('fr') === 0 ? 'fr' : 'en';
+  }
+
+  /* snapshot the authored English: text nodes and translatable attributes */
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    EN.text[el.getAttribute('data-i18n')] = el.textContent;
+  });
+  ATTRS.forEach((a) => {
+    document.querySelectorAll('[data-i18n-' + a + ']').forEach((el) => {
+      EN.attr[a + '|' + el.getAttribute('data-i18n-' + a)] = el.getAttribute(a);
+    });
+  });
+
+  function applyLang(lang){
+    CURRENT_LANG = lang === 'fr' ? 'fr' : 'en';
+    const dict = CURRENT_LANG === 'fr' ? FR : null;
+    const pick = (map, key) => (dict && dict[key] != null ? dict[key] : map[key]);
+
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const v = pick(EN.text, el.getAttribute('data-i18n'));
+      if (v != null) el.textContent = v;
+    });
+    /* NB: the dictionary is keyed by the bare i18n key, while the English
+       snapshot is namespaced per attribute — a single element rarely reuses
+       one key across two attributes, but the snapshot keeps them apart anyway */
+    ATTRS.forEach((a) => {
+      document.querySelectorAll('[data-i18n-' + a + ']').forEach((el) => {
+        const k = el.getAttribute('data-i18n-' + a);
+        const v = dict && dict[k] != null ? dict[k] : EN.attr[a + '|' + k];
+        if (v != null) el.setAttribute(a, v);
+      });
+    });
+
+    document.documentElement.lang = CURRENT_LANG;
+    document.documentElement.setAttribute('data-lang', CURRENT_LANG);
+    document.title = TITLE[CURRENT_LANG] || TITLE.en;
+
+    const sw = document.getElementById('langSwitch');
+    if (sw) sw.setAttribute('data-active', CURRENT_LANG);
+    document.querySelectorAll('[data-set-lang]').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === CURRENT_LANG));
+    });
+
+    const mail = document.getElementById('mailBtn');
+    if (mail) mail.href = 'mailto:hheribwiza1@gmail.com?subject=' +
+      (CURRENT_LANG === 'fr' ? 'Contact%20portfolio' : 'Portfolio%20Contact');
+
+    renderFact(); /* the counter card is JS-driven text, so it re-renders too */
+  }
+
+  document.querySelectorAll('[data-set-lang]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const lang = b.getAttribute('data-set-lang');
+      safeSet('hb-lang', lang);
+      applyLang(lang);
+    });
+  });
 
   /* mobile nav */
   const navToggle = document.getElementById('navToggle');
@@ -587,32 +1111,119 @@
     });
   });
 
-  /* hero counter card — cycles quick facts */
-  const facts = [
-    { label: 'Role', value: 'BICT Assistant' },
-    { label: 'Based In', value: 'Kicukiro, Kigali' },
-    { label: 'Experience', value: '3+ years' },
-    { label: 'Languages', value: 'FR · EN · SW · LN' }
-  ];
+  /* hero counter card — cycles quick facts (language-aware) */
+  const FACTS = {
+    en: [
+      { label: 'Role', value: 'BICT Assistant' },
+      { label: 'Based In', value: 'Kigali, RW\nGoma, DRC' },
+      { label: 'Experience', value: '3+ years' },
+      { label: 'Languages', value: 'FR · EN · SW · LN' }
+    ],
+    fr: [
+      { label: 'Rôle', value: 'Assistant BICT' },
+      { label: 'Basé à', value: 'Kigali, RW\nGoma, RDC' },
+      { label: 'Expérience', value: '+3 ans' },
+      { label: 'Langues', value: 'FR · EN · SW · LN' }
+    ]
+  };
   let factIndex = 0;
   const counterNum = document.getElementById('counterNum');
   const counterLabel = document.getElementById('counterLabel');
   const counterValue = document.getElementById('counterValue');
+  function currentFacts(){ return FACTS[CURRENT_LANG] || FACTS.en; }
   function renderFact(){
+    const facts = currentFacts();
     const n = String(factIndex + 1).padStart(2, '0');
     counterNum.innerHTML = n + '<span>/0' + facts.length + '</span>';
     counterLabel.textContent = facts[factIndex].label;
     counterValue.textContent = facts[factIndex].value;
   }
   document.getElementById('counterPrev').addEventListener('click', () => {
-    factIndex = (factIndex - 1 + facts.length) % facts.length;
+    const len = currentFacts().length;
+    factIndex = (factIndex - 1 + len) % len;
     renderFact();
   });
   document.getElementById('counterNext').addEventListener('click', () => {
-    factIndex = (factIndex + 1) % facts.length;
+    const len = currentFacts().length;
+    factIndex = (factIndex + 1) % len;
     renderFact();
   });
   renderFact();
+
+  /* hero portrait — pointer-driven 3D parallax rig (fine pointers only).
+     Writes four custom properties onto .portrait3d; CSS composes them into the
+     single transform of .p3d-stage, so the whole depth stack moves as one rig. */
+  (function portrait3d(){
+    const scene = document.querySelector('[data-portrait-3d]');
+    if (!scene) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduce.matches) return;
+
+    const fine = window.matchMedia('(hover:hover) and (pointer:fine)');
+    const MAX_X = 10, MAX_Y = 14, LIFT = 34, EASE = 0.075;
+
+    let tgtX = 0, tgtY = 0, tgtPX = 0, tgtPY = 0, tgtLift = 0;
+    let curX = 0, curY = 0, curPX = 0, curPY = 0, curLift = 0;
+    let hovering = false, lastMove = 0, raf = null, visible = true;
+    const t0 = performance.now();
+
+    scene.addEventListener('pointermove', (e) => {
+      if (!fine.matches) return;
+      const r = scene.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      tgtPX = (e.clientX - r.left) / r.width - 0.5;
+      tgtPY = (e.clientY - r.top) / r.height - 0.5;
+      tgtY = tgtPX * 2 * MAX_Y;
+      tgtX = -tgtPY * 2 * MAX_X;
+      tgtLift = 1;
+      hovering = true;
+      lastMove = performance.now();
+    }, { passive:true });
+
+    scene.addEventListener('pointerleave', () => {
+      hovering = false; tgtX = 0; tgtY = 0; tgtPX = 0; tgtPY = 0; tgtLift = 0;
+    });
+
+    function step(now){
+      raf = null;
+      if (!visible || document.hidden) return;
+      if (!hovering || (now - lastMove) > 2400){
+        /* idle drift: the rig breathes so the depth planes stay readable */
+        const s = (now - t0) / 1000;
+        const amp = fine.matches ? 1 : 0.8;
+        tgtY = Math.sin(s * 0.42) * 4.2 * amp;
+        tgtX = Math.cos(s * 0.31) * 2.6 * amp;
+        tgtPX = Math.sin(s * 0.42) * 0.18;
+        tgtPY = Math.cos(s * 0.31) * 0.18;
+        tgtLift = 0.25;
+      }
+      curX += (tgtX - curX) * EASE;
+      curY += (tgtY - curY) * EASE;
+      curLift += (tgtLift - curLift) * EASE;
+      curPX += (tgtPX - curPX) * EASE;
+      curPY += (tgtPY - curPY) * EASE;
+      const st = scene.style;
+      st.setProperty('--rx', curX.toFixed(2) + 'deg');
+      st.setProperty('--ry', curY.toFixed(2) + 'deg');
+      st.setProperty('--dx', (curPX * -16).toFixed(2) + 'px');
+      st.setProperty('--dy', (curPY * -13).toFixed(2) + 'px');
+      st.setProperty('--dz', (curLift * LIFT).toFixed(1) + 'px');
+      st.setProperty('--px', curPX.toFixed(3));
+      st.setProperty('--py', curPY.toFixed(3));
+      raf = requestAnimationFrame(step);
+    }
+    function start(){ if (raf === null && visible && !document.hidden) raf = requestAnimationFrame(step); }
+
+    if ('IntersectionObserver' in window){
+      new IntersectionObserver((entries) => {
+        visible = entries[0].isIntersecting;
+        if (visible) start();
+      }, { threshold: 0 }).observe(scene);
+    }
+    document.addEventListener('visibilitychange', start);
+    window.addEventListener('pagehide', () => { if (raf !== null) cancelAnimationFrame(raf); raf = null; }, { once:true });
+    start();
+  })();
 
   /* scroll reveal */
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -654,12 +1265,19 @@
         if (!res.ok) {
           cvBtn.classList.add('is-disabled');
           cvBtn.setAttribute('aria-disabled', 'true');
-          cvBtn.title = 'CV coming soon — reach out directly for now.';
+          cvBtn.title = CURRENT_LANG === 'fr'
+            ? 'CV bientôt disponible — contactez-moi directement en attendant.'
+            : 'CV coming soon — reach out directly for now.';
           cvBtn.addEventListener('click', (e) => e.preventDefault());
         }
       })
       .catch(() => {});
   })();
+
+  /* First paint in the remembered / detected language. This runs before the
+     browser paints (the script is synchronous and sits at the end of <body>),
+     so a returning French visitor never sees an English flash. */
+  applyLang(detectLang());
 </script>
 
 </body>
